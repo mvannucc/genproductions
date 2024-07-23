@@ -63,7 +63,8 @@ cat<<-EOF
 	# Pack output and condor scratch dir info
 	cd "\${condor_scratch}/${card_name}"
 	mv "\${condor_scratch}/_condor_scratch_dir.txt" .
-	XZ_OPT="--lzma2=preset=9,dict=512MiB" tar -cJpsf "\${condor_scratch}/${sandbox_output}" "${card_name}_gridpack" "_condor_scratch_dir.txt"
+	XZ_OPT="--lzma2=preset=9,dict=512MiB" tar -cJpf "\${condor_scratch}/${sandbox_output}" --transform='s|^/||' "${card_name}_gridpack" "_condor_scratch_dir.txt"
+	# XZ_OPT="--lzma2=preset=9,dict=512MiB" tar -cJpsf "\${condor_scratch}/${sandbox_output}" "${card_name}_gridpack" "_condor_scratch_dir.txt"
 	# tar -jcf "\${condor_scratch}/$sandbox_output" "${card_name}_gridpack" "_condor_scratch_dir.txt"
 
 	# Stage-out sandbox
@@ -77,22 +78,22 @@ cat<<-EOF
 	    echo "The xrdcp command below failed:"
 	    echo "xrdcp -f \${condor_scratch}$sandbox_output root://stash.osgconnect.net:1094/${stash_tmpdir##/stash}/$sandbox_output"
 	fi
-        # Temporarily disable condor_chirp
-        # until this feature comes back in CMS
-	## Second, try condor_chirp
-	#echo ">> Copying sandbox via condor_chirp"
-	#CONDOR_CHIRP_BIN=\$(command -v condor_chirp)
-	#if [ \$? != 0 ]; then
+    #     # Temporarily disable condor_chirp
+    #     # until this feature comes back in CMS
+	# Second, try condor_chirp
+	# echo ">> Copying sandbox via condor_chirp"
+	# CONDOR_CHIRP_BIN=\$(command -v condor_chirp)
+	# if [ \$? != 0 ]; then
 	#    if [ -n "\${CONDOR_CONFIG}" ]; then
 	#        CONDOR_CHIRP_BIN="\$(dirname \$CONDOR_CONFIG)/main/condor/libexec/condor_chirp"
 	#    fi
-	#fi
-	#"\${CONDOR_CHIRP_BIN}" put -perm 644 "\${condor_scratch}/$sandbox_output" "$sandbox_output"
-	#exitcode=\$?
-	#if [ \$exitcode -ne 0 ]; then
+	# fi
+	# "\${CONDOR_CHIRP_BIN}" put -perm 644 "\${condor_scratch}/$sandbox_output" "$sandbox_output"
+	# exitcode=\$?
+	# if [ \$exitcode -ne 0 ]; then
 	#    echo "condor_chirp failed. Exiting with error code 210."
 	#    exit 210
-	#fi
+	# fi
 	#rm "\${condor_scratch}/$sandbox_output"
 
 EOF
@@ -185,6 +186,8 @@ else
     rhel_ver="rhel6"
   elif [[ $SYSTEM_RELEASE == *"release 7"* ]]; then
     rhel_ver="rhel7"
+  elif [[ $SYSTEM_RELEASE == *"release 9"* ]]; then
+    rhel_ver="rhel9"
   else 
     echo "No default CMSSW for current OS!"
       if [ "${BASH_SOURCE[0]}" != "${0}" ]; then return 1; else exit 1; fi        

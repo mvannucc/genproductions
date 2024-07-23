@@ -265,31 +265,36 @@ make_gridpack () {
       echo "save options --all" >> mgconfigscript
     
       ./bin/mg5_aMC mgconfigscript
-    
-      #load extra models if needed
-      if [ -e $CARDSDIR/${name}_extramodels.dat ]; then
-        echo "Loading extra models specified in $CARDSDIR/${name}_extramodels.dat"
-        #strip comments
-        sed 's:#.*$::g' $CARDSDIR/${name}_extramodels.dat | while read -r model || [ -n "$model" ]
-        do
-          #get needed BSM model
-          if [[ $model = *[!\ ]* ]]; then
-            echo "Loading extra model $model"
-            wget --no-check-certificate https://cms-project-generators.web.cern.ch/cms-project-generators/$model	
-            cd models
-            if [[ $model == *".zip"* ]]; then
-              unzip ../$model
-            elif [[ $model == *".tgz"* ]]; then
-              tar zxvf ../$model
-            elif [[ $model == *".tar"* ]]; then
-              tar xavf ../$model
-            else 
-              echo "A BSM model is specified but it is not in a standard archive (.zip or .tar)"
-            fi
-            cd ..
-          fi
-        done
-      fi
+
+      wget --no-check-certificate https://ccarriva.web.cern.ch/SMEFT_model/SMEFTsim_topU3l_MwScheme_UFO_b_massless.tar.gz
+      cd models
+      tar xvzf  ../SMEFTsim_topU3l_MwScheme_UFO_b_massless.tar.gz
+      cd ..
+      
+      # #load extra models if needed
+      # if [ -e $CARDSDIR/${name}_extramodels.dat ]; then
+      #   echo "Loading extra models specified in $CARDSDIR/${name}_extramodels.dat"
+      #   #strip comments
+      #   sed 's:#.*$::g' $CARDSDIR/${name}_extramodels.dat | while read -r model || [ -n "$model" ]
+      #   do
+      #     #get needed BSM model
+      #     if [[ $model = *[!\ ]* ]]; then
+      #       echo "Loading extra model $model"
+      #       wget --no-check-certificate https://cms-project-generators.web.cern.ch/cms-project-generators/$model	
+      #       cd models
+      #       if [[ $model == *".zip"* ]]; then
+      #         unzip ../$model
+      #       elif [[ $model == *".tgz"* ]]; then
+      #         tar zxvf ../$model
+      #       elif [[ $model == *".tar"* ]]; then
+      #         tar xavf ../$model
+      #       else 
+      #         echo "A BSM model is specified but it is not in a standard archive (.zip or .tar)"
+      #       fi
+      #       cd ..
+      #     fi
+      #   done
+      # fi
     
       cd $WORKDIR
       
@@ -602,6 +607,7 @@ make_gridpack () {
       
       echo "cleaning temporary output"
       mv $WORKDIR/processtmp/pilotrun_gridpack.tar.gz $WORKDIR/
+      mv $WORKDIR/processtmp/pilotrun_tag_1_debug.log $WORKDIR/
       rm -rf processtmp
       mkdir process
       cd process
@@ -735,7 +741,7 @@ else
     elif [[ $SYSTEM_RELEASE == *"release 8"* ]]; then
         cmssw_version=CMSSW_12_4_8
     elif [[ $SYSTEM_RELEASE == *"release 9"* ]]; then
-	cmssw_version=CMSSW_13_2_9
+        cmssw_version=CMSSW_13_0_2
     else 
         echo "No default CMSSW for current OS!"
         if [ "${BASH_SOURCE[0]}" != "${0}" ]; then return 1; else exit 1; fi        
